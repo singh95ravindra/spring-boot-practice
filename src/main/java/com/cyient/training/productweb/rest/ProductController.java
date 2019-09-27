@@ -61,7 +61,7 @@ public class ProductController {
 		return listOfProducts;
 	}
 	
-	@RequestMapping(method=RequestMethod.GET, value="/{name}")
+	@RequestMapping(method=RequestMethod.GET, value="/by-price/{name}")
 	public List<Product> getProductByNameAndPriceBetween(@PathVariable("name") String name, 
 			@RequestParam(value="min", required=false) Double min, @RequestParam(value="max", required=false) Double max) {
 		List<Product> listOfProducts = productRepository.findByNameAndPriceBetween(name, min, max);
