@@ -3,7 +3,12 @@ package com.cyient.training.productweb.rest;
 import java.util.List;
 import java.util.Optional;
 
+import javax.validation.constraints.Max;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +21,7 @@ import com.cyient.training.productweb.entity.ProductRepository;
 
 @RestController
 @RequestMapping("/products")
+@Validated
 public class ProductController {
 	
 	@Autowired
@@ -28,8 +34,10 @@ public class ProductController {
 	}
 	
 	@RequestMapping(method=RequestMethod.GET, value="")
-	public List<Product> getAllProduct() {
-		return productRepository.findAll();
+	public List<Product> getAllProduct(@RequestParam (value="page", required=false, defaultValue="0") int page, 
+			@RequestParam(value="pageSize", required=false, defaultValue="10")  @Max(20) int pageSize) {
+		Page<Product> pageRequest = productRepository.findAll(PageRequest.of(page, pageSize));
+		return pageRequest.getContent();
 	}
 	
 	@RequestMapping(method=RequestMethod.POST, value="")
@@ -45,6 +53,19 @@ public class ProductController {
 			return findById.get();
 		}
 		return null;
+	}
+	
+	@RequestMapping(method=RequestMethod.GET, value="/{name}")
+	public List<Product> getProductByName(@PathVariable String name) {
+		List<Product> listOfProducts = productRepository.findByName(name);
+		return listOfProducts;
+	}
+	
+	@RequestMapping(method=RequestMethod.GET, value="/{name}")
+	public List<Product> getProductByNameAndPriceBetween(@PathVariable("name") String name, 
+			@RequestParam(value="min", required=false) Double min, @RequestParam(value="max", required=false) Double max) {
+		List<Product> listOfProducts = productRepository.findByNameAndPriceBetween(name, min, max);
+		return listOfProducts;
 	}
 	
 	@RequestMapping(method=RequestMethod.PUT, value="/{id}")
